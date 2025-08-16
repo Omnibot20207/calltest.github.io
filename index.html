@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>School Calls · Bootstrap + WebRTC</title>
+    <!-- Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap Icons -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <!-- PeerJS (simplifies WebRTC) -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+      body {
+        background: #f8fafc;
+      }
+      .video-wrapper {
+        position: relative;
+        background: #000;
+        border-radius: 0.75rem;
+        overflow: hidden;
+      }
+      video {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .badge-floating {
+        position: absolute;
+        top: 0.5rem;
+        left: 0.5rem;
+      }
+      .controls-fixed {
+        position: sticky;
+        bottom: 0;
+        z-index: 999;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+      <div class="container">
+        <a class="navbar-brand fw-semibold" href="#"
+          ><i class="bi bi-camera-video-fill me-2"></i>School Calls</a
+        >
+      </div>
+    </nav>
+
+    <main class="container my-4">
+      <!-- Join/Create Panel -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label">Your Display Name</label>
+              <input
+                id="displayName"
+                class="form-control"
+                placeholder="e.g. Mrs. Ade or Subomi"
+              />
+            </div>
+            <div class="col-md-5">
+              <label class="form-label"
+                >Call ID (share this for others to reach you)</label
+              >
+              <div class="input-group">
+                <input
+                  id="myId"
+                  class="form-control"
+                  placeholder="— not connected yet —"
+                  readonly
+                />
+                <button
+                  id="copyIdBtn"
+                  class="btn btn-outline-secondary"
+                  type="button"
+                  title="Copy"
+                >
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-3 text-md-end">
+              <button id="connectBtn" class="btn btn-primary w-100">
+                <i class="bi bi-power me-1"></i>Connect
+              </button>
+            </div>
+            <div class="col-12">
+              <div class="alert alert-warning mb-0 small">
+                <strong>Tip:</strong> After you connect, share your
+                <em>Call ID</em> with your partner. They can enter it below and
+                call you. This demo supports 1‑on‑1 calls.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dial Panel -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-6">
+              <label class="form-label">Partner's Call ID</label>
+              <input
+                id="partnerId"
+                class="form-control"
+                placeholder="Paste the other person's Call ID"
+              />
+            </div>
+            <div class="col-md-3">
+              <button id="callBtn" class="btn btn-success w-100" disabled>
+                <i class="bi bi-telephone-outbound me-1"></i>Call
+              </button>
+            </div>
+            <div class="col-md-3">
+              <button id="endBtn" class="btn btn-outline-danger w-100" disabled>
+                <i class="bi bi-telephone-x me-1"></i>End
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Videos -->
+      <div class="row g-4">
+        <div class="col-md-6">
+          <div class="video-wrapper shadow-sm">
+            <span class="badge text-bg-light badge-floating"
+              ><i class="bi bi-person-video3 me-1"></i
+              ><span id="selfLabel">You</span></span
+            >
+            <video id="localVideo" autoplay playsinline muted></video>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="video-wrapper shadow-sm">
+            <span class="badge text-bg-light badge-floating"
+              ><i class="bi bi-people me-1"></i>Partner</span
+            >
+            <video id="remoteVideo" autoplay playsinline></video>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="card shadow-sm mt-4 controls-fixed">
+        <div class="card-body d-flex flex-wrap gap-2 justify-content-center">
+          <button id="muteBtn" class="btn btn-outline-secondary" disabled>
+            <i class="bi bi-mic-mute me-1"></i>Mute
+          </button>
+          <button id="videoBtn" class="btn btn-outline-secondary" disabled>
+            <i class="bi bi-camera-video-off me-1"></i>Stop Video
+          </button>
+          <button id="screenBtn" class="btn btn-outline-secondary" disabled>
+            <i class="bi bi-display me-1"></i>Share Screen
+          </button>
+          <button
+            id="flipBtn"
+            class="btn btn-outline-secondary d-none"
+            disabled
+          >
+            <i class="bi bi-arrow-repeat me-1"></i>Flip Camera
+          </button>
+          <button id="leaveBtn" class="btn btn-outline-danger" disabled>
+            <i class="bi bi-door-closed me-1"></i>Leave
+          </button>
+        </div>
+      </div>
+
+      <p class="text-center text-muted small mt-3">
+        Peer‑to‑peer demo for learning. Works over HTTPS. For group classes
+        you’ll need a simple server to coordinate multiple peers.
+      </p>
+    </main>
+
+    <script>
+      // === Basic state ===
+      let peer; // PeerJS instance
+      let currentCall; // Active PeerJS MediaConnection
+      let localStream; // getUserMedia stream (camera+mic)
+      let screenStream; // screen share stream
+      let audioEnabled = true;
+      let videoEnabled = true;
+
+      const els = {
+        displayName: document.getElementById("displayName"),
+        myId: document.getElementById("myId"),
+        copyIdBtn: document.getElementById("copyIdBtn"),
+        connectBtn: document.getElementById("connectBtn"),
+        partnerId: document.getElementById("partnerId"),
+        callBtn: document.getElementById("callBtn"),
+        endBtn: document.getElementById("endBtn"),
+        localVideo: document.getElementById("localVideo"),
+        remoteVideo: document.getElementById("remoteVideo"),
+        muteBtn: document.getElementById("muteBtn"),
+        videoBtn: document.getElementById("videoBtn"),
+        screenBtn: document.getElementById("screenBtn"),
+        flipBtn: document.getElementById("flipBtn"),
+        leaveBtn: document.getElementById("leaveBtn"),
+        selfLabel: document.getElementById("selfLabel"),
+      };
+
+      // Utility: toast
+      function toast(msg, type = "info") {
+        const el = document.createElement("div");
+        el.className = `alert alert-${type} position-fixed top-0 start-50 translate-middle-x mt-3 shadow`;
+        el.style.zIndex = 2000;
+        el.textContent = msg;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 2200);
+      }
+
+      // Ask camera/mic early
+      async function initMedia() {
+        try {
+          localStream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: true,
+          });
+          els.localVideo.srcObject = localStream;
+          enableControls(true);
+        } catch (e) {
+          console.error(e);
+          toast(
+            "We need camera & microphone access to place a call.",
+            "danger"
+          );
+        }
+      }
+
+      // Enable/disable UI controls depending on connection
+      function enableControls(isReady) {
+        els.muteBtn.disabled = !isReady;
+        els.videoBtn.disabled = !isReady;
+        els.screenBtn.disabled = !isReady;
+        els.leaveBtn.disabled = !isReady;
+      }
+
+      // --- Connect to PeerJS server ---
+      els.connectBtn.addEventListener("click", async () => {
+        if (peer && !peer.disconnected) {
+          toast("Already connected");
+          return;
+        }
+
+        // Optional custom id based on name
+        const name = (els.displayName.value || "user")
+          .toLowerCase()
+          .replace(/\s+/g, "-");
+
+        peer = new Peer({ debug: 1 }); // uses default free PeerServer; for production, run your own
+
+        peer.on("open", (id) => {
+          els.myId.value = id;
+          els.callBtn.disabled = false;
+          els.endBtn.disabled = false;
+          els.selfLabel.textContent = els.displayName.value
+            ? `${els.displayName.value} (You)`
+            : "You";
+          toast("Connected. Share your Call ID with your partner.", "success");
+        });
+
+        peer.on("error", (err) => {
+          console.error(err);
+          toast(err.type ? `${err.type}: ${err}` : String(err), "danger");
+        });
+
+        // Answer incoming calls
+        peer.on("call", (call) => {
+          if (currentCall) {
+            call.close();
+            return;
+          }
+          currentCall = call;
+          call.answer(localStream);
+          wireCallEvents(call);
+          toast("Incoming call — connected.", "success");
+        });
+
+        await initMedia();
+      });
+
+      // Place an outgoing call
+      els.callBtn.addEventListener("click", () => {
+        const id = els.partnerId.value.trim();
+        if (!peer || peer.disconnected)
+          return toast("Connect first.", "warning");
+        if (!id) return toast("Enter the partner's Call ID.", "warning");
+        if (currentCall) currentCall.close();
+        const call = peer.call(id, localStream);
+        currentCall = call;
+        wireCallEvents(call);
+      });
+
+      // End current call (keep Peer session alive)
+      els.endBtn.addEventListener("click", () => {
+        if (currentCall) {
+          currentCall.close();
+          currentCall = null;
+        }
+        els.remoteVideo.srcObject = null;
+      });
+
+      // Global leave (disconnect from Peer server)
+      els.leaveBtn.addEventListener("click", () => {
+        try {
+          if (currentCall) currentCall.close();
+        } catch {}
+        try {
+          if (peer) peer.disconnect();
+        } catch {}
+        toast("Disconnected. Refresh to start again.");
+      });
+
+      // Mute/unmute
+      els.muteBtn.addEventListener("click", () => {
+        audioEnabled = !audioEnabled;
+        localStream.getAudioTracks().forEach((t) => (t.enabled = audioEnabled));
+        els.muteBtn.innerHTML = audioEnabled
+          ? '<i class="bi bi-mic-mute me-1"></i>Mute'
+          : '<i class="bi bi-mic me-1"></i>Unmute';
+      });
+
+      // Stop/start camera
+      els.videoBtn.addEventListener("click", () => {
+        videoEnabled = !videoEnabled;
+        localStream.getVideoTracks().forEach((t) => (t.enabled = videoEnabled));
+        els.videoBtn.innerHTML = videoEnabled
+          ? '<i class="bi bi-camera-video-off me-1"></i>Stop Video'
+          : '<i class="bi bi-camera-video me-1"></i>Start Video';
+      });
+
+      // Screen share toggle (replace video track while sharing)
+      els.screenBtn.addEventListener("click", async () => {
+        if (!screenStream) {
+          try {
+            screenStream = await navigator.mediaDevices.getDisplayMedia({
+              video: true,
+            });
+            const screenTrack = screenStream.getVideoTracks()[0];
+            replaceOutgoingVideoTrack(screenTrack);
+            screenTrack.onended = () => {
+              // when user stops sharing via browser UI
+              restoreCameraTrack();
+              screenStream = null;
+            };
+            els.screenBtn.innerHTML =
+              '<i class="bi bi-x-circle me-1"></i>Stop Share';
+          } catch (e) {
+            console.warn(e);
+          }
+        } else {
+          restoreCameraTrack();
+          screenStream.getTracks().forEach((t) => t.stop());
+          screenStream = null;
+          els.screenBtn.innerHTML =
+            '<i class="bi bi-display me-1"></i>Share Screen';
+        }
+      });
+
+      // Copy ID
+      els.copyIdBtn.addEventListener("click", async () => {
+        if (!els.myId.value) return;
+        await navigator.clipboard.writeText(els.myId.value);
+        toast("Call ID copied!", "success");
+      });
+
+      // Helpers to swap video tracks mid-call
+      function replaceOutgoingVideoTrack(newTrack) {
+        // Update local preview
+        const newStream = new MediaStream([
+          newTrack,
+          ...localStream.getAudioTracks(),
+        ]);
+        els.localVideo.srcObject = newStream;
+
+        // Update sender track for the active RTCPeerConnection
+        if (currentCall && currentCall.peerConnection) {
+          const sender = currentCall.peerConnection
+            .getSenders()
+            .find((s) => s.track && s.track.kind === "video");
+          if (sender) sender.replaceTrack(newTrack);
+        }
+      }
+
+      async function restoreCameraTrack() {
+        // Ensure we still have a camera track (re-get if user disabled video completely)
+        if (!localStream || !localStream.getVideoTracks().length) {
+          const cam = await navigator.mediaDevices.getUserMedia({
+            video: true,
+          });
+          cam.getVideoTracks().forEach((t) => localStream.addTrack(t));
+        }
+        const camTrack = localStream.getVideoTracks()[0];
+        replaceOutgoingVideoTrack(camTrack);
+      }
+
+      // Wire events for a MediaConnection
+      function wireCallEvents(call) {
+        call.on("stream", (remoteStream) => {
+          els.remoteVideo.srcObject = remoteStream;
+          toast("Call connected", "success");
+        });
+        call.on("close", () => {
+          els.remoteVideo.srcObject = null;
+          els.screenBtn.innerHTML =
+            '<i class="bi bi-display me-1"></i>Share Screen';
+          toast("Call ended", "secondary");
+        });
+        call.on("error", (err) => {
+          console.error(err);
+          toast("Call error: " + err, "danger");
+        });
+      }
+
+      // Auto-run: show a small hint if not HTTPS
+      if (location.protocol !== "https:" && location.hostname !== "localhost") {
+        toast("Use HTTPS for camera/mic access on most browsers.", "warning");
+      }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

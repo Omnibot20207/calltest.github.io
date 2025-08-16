@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>School Classes • Bootstrap</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons (optional) -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        background-color: #f8fafc;
+      }
+      .hero {
+        background: linear-gradient(135deg, #0d6efd 0%, #5aa2ff 100%);
+        color: #fff;
+        border-radius: 1rem;
+      }
+      .class-card:hover {
+        transform: translateY(-2px);
+        transition: 120ms ease;
+      }
+      .badge-period {
+        font-size: 0.8rem;
+      }
+      .table-sticky thead th {
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+      <div class="container">
+        <a class="navbar-brand fw-bold" href="#"
+          ><i class="bi bi-mortarboard"></i> Bluebridge High</a
+        >
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#nav"
+          aria-controls="nav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="nav" class="collapse navbar-collapse">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="#today">Today</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#timetable">Timetable</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#teachers">Teachers</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#contact">Contact</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="container my-4">
+      <div class="hero p-4 p-md-5">
+        <div class="row align-items-center">
+          <div class="col-lg-8">
+            <h1 class="display-6 fw-semibold mb-2">
+              Welcome to Today’s Classes
+            </h1>
+            <p class="lead mb-3">
+              Join live lessons, check your schedule, and reach your teachers
+              quickly.
+            </p>
+            <a href="#today" class="btn btn-light btn-lg me-2"
+              ><i class="bi bi-play-circle"></i> See Today’s Classes</a
+            >
+            <a href="#timetable" class="btn btn-outline-light btn-lg"
+              ><i class="bi bi-calendar-week"></i> View Timetable</a
+            >
+          </div>
+          <div class="col-lg-4 mt-4 mt-lg-0 text-lg-end">
+            <div
+              class="bg-white text-dark rounded-3 p-3 shadow-sm d-inline-block"
+            >
+              <div class="small text-muted mb-1">Date</div>
+              <div id="todayDate" class="fw-bold"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Today’s Classes -->
+    <main class="container" id="today">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 mb-0">Today’s Classes</h2>
+        <span class="text-muted small">All times are local</span>
+      </div>
+
+      <div class="row g-3">
+        <!-- Class 1 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="card class-card shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <h5 class="card-title mb-1">Mathematics (SS1)</h5>
+                <span class="badge text-bg-primary badge-period"
+                  >08:00–08:45</span
+                >
+              </div>
+              <p class="text-muted mb-2">Room 204 · Mr. Adeyemi</p>
+              <p class="card-text small">
+                Topic: Quadratic Equations (Factoring & Completing the Square).
+              </p>
+              <div class="d-flex gap-2">
+                <button
+                  class="btn btn-primary btn-sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#joinModal"
+                  data-class="Mathematics (SS1)"
+                  data-meet="https://meet.google.com/abc-defg-hij"
+                  data-zoom="https://zoom.us/j/1234567890"
+                  data-teams="https://teams.microsoft.com/l/meetup-join/..."
+                >
+                  <i class="bi bi-camera-video"></i> Join Call
+                </button>
+                <a
+                  class="btn btn-outline-secondary btn-sm"
+                  href="tel:+2348012345678"
+                  ><i class="bi bi-telephone"></i> Call Teacher</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Class 2 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="card class-card shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <h5 class="card-title mb-1">English Language (JS3)</h5>
+                <span class="badge text-bg-primary badge-period"
+                  >09:00–09:45</span
+                >
+              </div>
+              <p class="text-muted mb-2">Room 112 · Ms. Okon</p>
+              <p class="card-text small">
+                Topic: Narrative Writing—Setting, Plot & Dialogue.
+              </p>
+              <div class="d-flex gap-2">
+                <button
+                  class="btn btn-primary btn-sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#joinModal"
+                  data-class="English Language (JS3)"
+                  data-meet="https://meet.google.com/xyz-uvwx-123"
+                  data-zoom="https://zoom.us/j/9988776655"
+                  data-teams="https://teams.microsoft.com/l/meetup-join/..."
+                >
+                  <i class="bi bi-camera-video"></i> Join Call
+                </button>
+                <a
+                  class="btn btn-outline-secondary btn-sm"
+                  href="tel:+2348098765432"
+                  ><i class="bi bi-telephone"></i> Call Teacher</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Class 3 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="card class-card shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <h5 class="card-title mb-1">Basic Science (JS2)</h5>
+                <span class="badge text-bg-primary badge-period"
+                  >10:00–10:45</span
+                >
+              </div>
+              <p class="text-muted mb-2">Lab A · Mr. Bello</p>
+              <p class="card-text small">
+                Topic: States of Matter & Particle Theory.
+              </p>
+              <div class="d-flex gap-2">
+                <button
+                  class="btn btn-primary btn-sm"
+                  data-bs-toggle="modal"
+                  data-bs-target="#joinModal"
+                  data-class="Basic Science (JS2)"
+                  data-meet="https://meet.google.com/meet-link"
+                  data-zoom="https://zoom.us/j/1112223334"
+                  data-teams="https://teams.microsoft.com/l/meetup-join/..."
+                >
+                  <i class="bi bi-camera-video"></i> Join Call
+                </button>
+                <a
+                  class="btn btn-outline-secondary btn-sm"
+                  href="tel:+2347011122233"
+                  ><i class="bi bi-telephone"></i> Call Teacher</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add more classes by copying a card -->
+      </div>
+
+      <!-- Timetable -->
+      <section class="mt-5" id="timetable">
+        <h2 class="h4 mb-3">Weekly Timetable</h2>
+        <div class="table-responsive table-sticky">
+          <table class="table align-middle table-bordered bg-white">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">Time</th>
+                <th scope="col">Mon</th>
+                <th scope="col">Tue</th>
+                <th scope="col">Wed</th>
+                <th scope="col">Thu</th>
+                <th scope="col">Fri</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">08:00–08:45</th>
+                <td>Math (SS1)</td>
+                <td>English (JS3)</td>
+                <td>Biology (SS2)</td>
+                <td>Physics (SS2)</td>
+                <td>Civic (JS2)</td>
+              </tr>
+              <tr>
+                <th scope="row">09:00–09:45</th>
+                <td>Chemistry (SS2)</td>
+                <td>Math (SS1)</td>
+                <td>English (JS3)</td>
+                <td>Geography (SS1)</td>
+                <td>ICT (JS3)</td>
+              </tr>
+              <tr>
+                <th scope="row">10:00–10:45</th>
+                <td>Basic Sci (JS2)</td>
+                <td>Economics (SS2)</td>
+                <td>CRS/IRS</td>
+                <td>Government (SS3)</td>
+                <td>Fine Art (JS1)</td>
+              </tr>
+              <tr>
+                <th scope="row">11:00–11:45</th>
+                <td>Break</td>
+                <td>Break</td>
+                <td>Break</td>
+                <td>Break</td>
+                <td>Break</td>
+              </tr>
+              <tr>
+                <th scope="row">12:00–12:45</th>
+                <td>History (JS3)</td>
+                <td>Lit-in-Eng (SS2)</td>
+                <td>Yorùbá</td>
+                <td>Agric Sci (SS1)</td>
+                <td>Math (SS2)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Teachers -->
+      <section class="mt-5" id="teachers">
+        <h2 class="h4 mb-3">Teachers Directory</h2>
+        <div class="row g-3">
+          <div class="col-md-6 col-lg-4">
+            <div class="border rounded-3 bg-white p-3 h-100">
+              <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-person-circle fs-3 me-2"></i>
+                <div>
+                  <div class="fw-semibold">Mr. Adeyemi</div>
+                  <div class="small text-muted">Mathematics</div>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <a
+                  class="btn btn-outline-primary btn-sm"
+                  href="tel:+2348012345678"
+                  ><i class="bi bi-telephone"></i> Call</a
+                >
+                <a
+                  class="btn btn-outline-success btn-sm"
+                  href="https://wa.me/2348012345678"
+                  target="_blank"
+                  rel="noopener"
+                  ><i class="bi bi-whatsapp"></i> WhatsApp</a
+                >
+                <a
+                  class="btn btn-outline-secondary btn-sm"
+                  href="mailto:adeyemi@school.edu"
+                  ><i class="bi bi-envelope"></i> Email</a
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-4">
+            <div class="border rounded-3 bg-white p-3 h-100">
+              <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-person-circle fs-3 me-2"></i>
+                <div>
+                  <div class="fw-semibold">Ms. Okon</div>
+                  <div class="small text-muted">English Language</div>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <a
+                  class="btn btn-outline-primary btn-sm"
+                  href="tel:+2348098765432"
+                  ><i class="bi bi-telephone"></i> Call</a
+                >
+                <a
+                  class="btn btn-outline-success btn-sm"
+                  href="https://wa.me/2348098765432"
+                  target="_blank"
+                  rel="noopener"
+                  ><i class="bi bi-whatsapp"></i> WhatsApp</a
+                >
+                <a
+                  class="btn btn-outline-secondary btn-sm"
+                  href="mailto:okon@school.edu"
+                  ><i class="bi bi-envelope"></i> Email</a
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-4">
+            <div class="border rounded-3 bg-white p-3 h-100">
+              <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-person-circle fs-3 me-2"></i>
+                <div>
+                  <div class="fw-semibold">Mr. Bello</div>
+                  <div class="small text-muted">Basic Science</div>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <a
+                  class="btn btn-outline-primary btn-sm"
+                  href="tel:+2347011122233"
+                  ><i class="bi bi-telephone"></i> Call</a
+                >
+                <a
+                  class="btn btn-outline-success btn-sm"
+                  href="https://wa.me/2347011122233"
+                  target="_blank"
+                  rel="noopener"
+                  ><i class="bi bi-whatsapp"></i> WhatsApp</a
+                >
+                <a
+                  class="btn btn-outline-secondary btn-sm"
+                  href="mailto:bello@school.edu"
+                  ><i class="bi bi-envelope"></i> Email</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact / Footer -->
+      <section class="my-5" id="contact">
+        <div class="p-4 bg-white border rounded-3">
+          <h2 class="h4 mb-2">School Office</h2>
+          <p class="mb-2 text-muted">Have issues joining a class? Reach out.</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-primary" href="tel:+2348000000000"
+              ><i class="bi bi-telephone"></i> Call Office</a
+            >
+            <a class="btn btn-outline-secondary" href="mailto:info@school.edu"
+              ><i class="bi bi-envelope"></i> Email Office</a
+            >
+            <a class="btn btn-outline-dark" href="#"
+              ><i class="bi bi-geo-alt"></i> 24, College Road, Lagos</a
+            >
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Join Call Modal -->
+    <div
+      class="modal fade"
+      id="joinModal"
+      tabindex="-1"
+      aria-hidden="true"
+      aria-labelledby="joinModalLabel"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="joinModalLabel" class="modal-title">
+              <i class="bi bi-camera-video"></i> Join Class Call
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-2">
+              <span class="text-muted">Class:</span>
+              <span id="modalClassName" class="fw-semibold">—</span>
+            </p>
+            <div class="list-group">
+              <a
+                id="linkMeet"
+                class="list-group-item list-group-item-action"
+                target="_blank"
+                rel="noopener"
+              >
+                <i class="bi bi-google"></i> Google Meet
+              </a>
+              <a
+                id="linkZoom"
+                class="list-group-item list-group-item-action"
+                target="_blank"
+                rel="noopener"
+              >
+                <i class="bi bi-zoom-in"></i> Zoom
+              </a>
+              <a
+                id="linkTeams"
+                class="list-group-item list-group-item-action"
+                target="_blank"
+                rel="noopener"
+              >
+                <i class="bi bi-microsoft"></i> Microsoft Teams
+              </a>
+            </div>
+            <div class="form-text mt-2">
+              Links open in a new tab. Replace with your real meeting URLs.
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-outline-secondary" data-bs-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS (Popper + Bootstrap) -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+
+    <!-- Small helpers -->
+    <script>
+      // Show today’s date nicely
+      const dateEl = document.getElementById("todayDate");
+      dateEl.textContent = new Date().toLocaleString(undefined, {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
+      // Fill Join Call modal with the right links
+      const joinModal = document.getElementById("joinModal");
+      joinModal.addEventListener("show.bs.modal", (event) => {
+        const btn = event.relatedTarget;
+        const className = btn.getAttribute("data-class") || "Class";
+
+        const meet = btn.getAttribute("data-meet");
+        const zoom = btn.getAttribute("data-zoom");
+        const teams = btn.getAttribute("data-teams");
+
+        joinModal.querySelector("#modalClassName").textContent = className;
+
+        const linkMeet = joinModal.querySelector("#linkMeet");
+        const linkZoom = joinModal.querySelector("#linkZoom");
+        const linkTeams = joinModal.querySelector("#linkTeams");
+
+        // Enable/disable based on whether a link exists
+        function setLink(a, href) {
+          if (href && href.trim() !== "") {
+            a.classList.remove("disabled");
+            a.setAttribute("href", href);
+            a.setAttribute("aria-disabled", "false");
+          } else {
+            a.classList.add("disabled");
+            a.removeAttribute("href");
+            a.setAttribute("aria-disabled", "true");
+          }
+        }
+
+        setLink(linkMeet, meet);
+        setLink(linkZoom, zoom);
+        setLink(linkTeams, teams);
+      });
+    </script>
+  </body>
+</html>
