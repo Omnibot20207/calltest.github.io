@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ClassCall (Jitsi)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    :root { --meeting-height: 80vh; }
+    #meet { height: var(--meeting-height); }
+    #startCard { max-width: 720px; }
+  </style>
+</head>
+<body class="bg-light">
+  <div class="container py-4">
+    <h1 class="h3 mb-3">ClassCall</h1>
+
+    <!-- Start / Join form -->
+    <div id="startCard" class="card shadow-sm mb-3">
+      <div class="card-body">
+        <form id="joinForm" class="row gy-3">
+          <div class="col-12">
+            <label class="form-label">Room name</label>
+            <input id="roomName" class="form-control" placeholder="e.g. algebra-101" required>
+            <div class="form-text">Share this name with classmates to join the same room.</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Your name</label>
+            <input id="displayName" class="form-control" placeholder="Jane Doe">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Gmail (optional)</label>
+            <input id="email" type="email" class="form-control" placeholder="you@gmail.com">
+          </div>
+          <div class="col-12">
+            <button class="btn btn-primary" type="submit">Start / Join</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Meeting UI -->
+    <div id="meetingWrap" class="d-none">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <div class="btn-group">
+          <button id="leaveBtn" class="btn btn-outline-danger btn-sm">Leave</button>
+          <button id="tileBtn" class="btn btn-outline-secondary btn-sm">Toggle tile view</button>
+          <button id="micBtn" class="btn btn-outline-secondary btn-sm">Mute/Unmute</button>
+          <button id="camBtn" class="btn btn-outline-secondary btn-sm">Video On/Off</button>
+        </div>
+        <span id="participantCount" class="badge text-bg-secondary"></span>
+      </div>
+      <div id="meet" class="border rounded bg-white"></div>
+    </div>
+  </div>
+
+  <!-- Jitsi IFrame API -->
+  <script src="https://meet.jit.si/external_api.js"></script>
+  <script>
+    let api = null;
+
+    function adjustLayout() {
+      if (!api) return;
+      const n = api.getNumberOfParticipants(); // docs: getNumberOfParticipants()
+      // With 3+ people, go to tile view; with 1–2, use stage view
+      if (n >= 3) {
+        api.executeCommand('setTileView', true);  // docs: setTileView
+      } else {
+        api.executeCommand('setTileView', false);
+      }
+      document.getElementById('participantCount').textContent = n + ' in call';
+    }
+
+    document.getElementById('joinForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const roomName = document.getElementById('roomName').value.trim() || ('room-' + Math.random().toString(36).slice(2, 8));
+      const displayName = document.getElementById('displayName').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      document.getElementById('startCard').classList.add('d-none');
+      document.getElementById('meetingWrap').classList.remove('d-none');
+
+      const domain = 'meet.jit.si'; // or your self-hosted domain
+      const options = {
+        roomName,
+        parentNode: document.getElementById('meet'),
+        userInfo: { email: email || undefined, displayName: displayName || undefined }, // docs: userInfo
+        // Docs: configOverwrite & interfaceConfigOverwrite
+        configOverwrite: {
+          prejoinPageEnabled: true,
+          startWithAudioMuted: true,
+          toolbarButtons: ['camera','microphone','chat','raisehand','tileview','hangup','screensharing','participants-pane']
+        },
+        interfaceConfigOverwrite: {
+          TILE_VIEW_MAX_COLUMNS: 3 // keep the grid compact when class grows
+        }
+      };
+
+      api = new JitsiMeetExternalAPI(domain, options); // docs: new JitsiMeetExternalAPI(domain, options)
+
+      // Events from docs
+      api.addListener('videoConferenceJoined', adjustLayout);
+      api.addListener('participantJoined', adjustLayout);
+      api.addListener('participantLeft', adjustLayout);
+      api.addListener('readyToClose', () => {
+        api.dispose(); // cleanup (docs: dispose)
+        api = null;
+        document.getElementById('meetingWrap').classList.add('d-none');
+        document.getElementById('startCard').classList.remove('d-none');
+      });
+    });
+
+    // Handy buttons wired to commands from the docs
+    document.getElementById('tileBtn').addEventListener('click', () => api && api.executeCommand('toggleTileView'));
+    document.getElementById('micBtn').addEventListener('click', () => api && api.executeCommand('toggleAudio'));
+    document.getElementById('camBtn').addEventListener('click', () => api && api.executeCommand('toggleVideo'));
+    document.getElementById('leaveBtn').addEventListener('click', () => api && api.executeCommand('hangup'));
+  </script>
+</body>
+</html>
